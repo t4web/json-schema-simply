@@ -13,7 +13,54 @@ class Validator extends BaseValidator
             throw new InvalidArgumentException('Schema must be not empty');
         }
 
-        return parent::check($data, $schema, $path, $i);
+        $simplySchema = json_decode(str_replace(array('<', '>'), '"', $schema), true);
+die(var_dump(json_decode('{
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "integer"
+                        }
+                    },
+                    "required": ["id"]
+                }')));
+        $baseSchema = [
+            "type" => "object",
+            "properties" => $this->buildProperties($simplySchema),
+            "required" => $this->buildRequired($simplySchema)
+        ];
+die(var_dump((object)$baseSchema));
+        return parent::check(json_decode($data), (object)$baseSchema, $path, $i);
+    }
+
+    private function buildProperties(array $schema)
+    {
+        $properties = [];
+
+        foreach ($schema as $elementName => $elementType) {
+            $properties[$elementName]['type'] = $elementType;
+        }
+
+        return $properties;
+    }
+
+    private function buildRequired(array $schema)
+    {
+        $required = [];
+
+        foreach ($schema as $elementName => $elementType) {
+            $required[] = $elementName;
+        }
+
+        return $required;
+    }
+
+    public function arrayToObject($d) {
+        if (is_array($d)) {
+            return (object) array_map(__FUNCTION__, $d);
+        }
+        else {
+            return $d;
+        }
     }
 
 }

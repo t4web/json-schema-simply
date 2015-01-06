@@ -8,23 +8,15 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
-     * @see testIndefiniteArticleForTypeInTypeCheckErrorMessage
+     * @see testValidationIntegerType
      * @return array
      */
-    public function provideIndefiniteArticlesForTypes()
+    public function provideIntegerTypes()
     {
         return [
             [
                 '{"id": 123}',
-                '{
-                    "type": "object",
-                    "properties": {
-                        "id": {
-                            "type": "integer"
-                        }
-                    },
-                    "required": ["id"]
-                }',
+                '{"id": <integer>}',
                 true
             ],
             [
@@ -44,12 +36,12 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
     
     /**
-     * @dataProvider provideIndefiniteArticlesForTypes
+     * @dataProvider provideIntegerTypes
      */
-    public function testValidationBaseTypes($data, $schema, $expectedResult)
+    public function testValidationIntegerType($data, $schema, $expectedResult)
     {
         $validator = new Validator();
-        $validator->check(json_decode($data), json_decode($schema));
+        $validator->check($data, $schema);
 
         $this->assertEquals($validator->isValid(), $expectedResult);
     }

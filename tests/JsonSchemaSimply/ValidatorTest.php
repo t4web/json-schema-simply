@@ -21,15 +21,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 '{"id": "asd"}',
-                '{
-                    "type": "object",
-                    "properties": {
-                        "id": {
-                            "type": "integer"
-                        }
-                    },
-                    "required": ["id"]
-                }',
+                '{"id": <integer>}',
                 false
             ],
         ];
@@ -45,5 +37,6 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($validator->isValid(), $expectedResult);
     }
+
 
 }

@@ -14,22 +14,14 @@ class Validator extends BaseValidator
         }
 
         $simplySchema = json_decode(str_replace(array('<', '>'), '"', $schema), true);
-die(var_dump(json_decode('{
-                    "type": "object",
-                    "properties": {
-                        "id": {
-                            "type": "integer"
-                        }
-                    },
-                    "required": ["id"]
-                }')));
+
         $baseSchema = [
             "type" => "object",
             "properties" => $this->buildProperties($simplySchema),
             "required" => $this->buildRequired($simplySchema)
         ];
-die(var_dump((object)$baseSchema));
-        return parent::check(json_decode($data), (object)$baseSchema, $path, $i);
+
+        return parent::check(json_decode($data), $this->toObject($baseSchema), $path, $i);
     }
 
     private function buildProperties(array $schema)
@@ -54,13 +46,12 @@ die(var_dump((object)$baseSchema));
         return $required;
     }
 
-    public function arrayToObject($d) {
-        if (is_array($d)) {
-            return (object) array_map(__FUNCTION__, $d);
+    private function toObject($data) {
+        if (is_array($data)) {
+            return (object) array_map([$this, 'toObject'], $data);
         }
-        else {
-            return $d;
-        }
+
+        return $data;
     }
 
 }

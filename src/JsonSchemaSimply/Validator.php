@@ -3,9 +3,11 @@
 namespace JsonSchemaSimply;
 
 use JsonSchema\Validator as BaseValidator;
+use UnexpectedValueException;
 
 class Validator extends BaseValidator
 {
+    private $typeNamespaces = ['JsonSchemaSimply\Type'];
 
     public function check($data, $schema = null, $path = null, $i = null)
     {
@@ -24,17 +26,30 @@ class Validator extends BaseValidator
         return parent::check(json_decode($data), $this->toObject($baseSchema), $path, $i);
     }
 
+    /**
+     * @param array $schema
+     * @return array
+     */
     private function buildProperties(array $schema)
     {
         $properties = [];
 
         foreach ($schema as $elementName => $elementType) {
+
+            if (!$this->typeExists($elementType)) {
+                throw new UnexpectedValueException("Unknown type for <$elementType>");
+            }
+
             $properties[$elementName]['type'] = $elementType;
         }
 
         return $properties;
     }
 
+    /**
+     * @param array $schema
+     * @return array
+     */
     private function buildRequired(array $schema)
     {
         $required = [];
@@ -46,12 +61,25 @@ class Validator extends BaseValidator
         return $required;
     }
 
-    private function toObject($data) {
+    private function toObject($data)
+    {
         if (is_array($data)) {
             return (object) array_map([$this, 'toObject'], $data);
         }
 
         return $data;
+    }
+
+    private function typeExists($typeName)
+    {
+        foreach($this->typeNamespaces as $namespace) {
+            $typeClass = trim($namespace, '\\') . '\\' . ucfirst($typeName);
+            if (class_exists($typeClass)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

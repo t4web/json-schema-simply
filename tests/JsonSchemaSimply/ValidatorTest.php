@@ -38,5 +38,15 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($validator->isValid(), $expectedResult);
     }
 
+    public function testValidationBadType()
+{
+    $data = '{"id": 123}';
+    $schema = '{"id": <xxinteger>}';
+
+    $this->setExpectedException('UnexpectedValueException');
+
+    $validator = new Validator();
+    $validator->check($data, $schema);
+}
 
 }
